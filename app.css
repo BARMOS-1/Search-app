@@ -1,0 +1,361 @@
+/* 基本設定 */
+body { 
+  -webkit-tap-highlight-color: transparent; 
+  overscroll-behavior-y: none; 
+  background-color: #feffff; 
+}
+
+/* 変数定義（セーフエリア） */
+:root {
+  --sat: env(safe-area-inset-top);
+  --sab: env(safe-area-inset-bottom);
+}
+
+/* ヘッダー：ステータスバーを避ける */
+header {
+  padding-top: calc(var(--sat) + 1rem) !important;
+}
+
+/* リスト部分：ヘッダーの下から開始 */
+main {
+  padding-bottom: var(--sab);
+}
+
+/* フッター：ホームバーを避ける */
+.safe-area-bottom {
+  padding-bottom: calc(var(--sab) + 1rem);
+}
+
+/* =========================================
+   モーダル全体の基本設定（スマホベース）
+   ========================================= */
+#modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000; /* 確実に一番手前に表示 */
+  display: none; /* 初期状態は非表示（JSでflexに切り替え） */
+  align-items: flex-end; /* ★スマホ：画面の下端に寄せる */
+  justify-content: center;
+}
+
+/* --- モーダルの中身（スマホ用：下からスライド） --- */
+#modalContent {
+  background: white;
+  width: 100%;
+  max-height: 90vh; /* スマホ画面の90%の高さを上限に */
+  border-radius: 24px 24px 0 0; /* 上の角だけ丸くする */
+  padding: 24px 20px 40px;
+  transform: translateY(100%); /* ★初期状態は画面の下枠外に隠す */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto; /* 縦にはみ出た分はスクロール可能に */
+}
+
+/* --- スマホで表示されたときのアニメーション --- */
+#modal.show #modalContent {
+  transform: translateY(0); /* 枠外から画面内に引き上げる */
+}
+
+/* =========================================
+   PC・タブレット向けの調整（幅768px以上）
+   ========================================= */
+@media (min-width: 768px) {
+  #modal {
+    align-items: center; /* ★PC：画面のど真ん中に配置 */
+  }
+  
+  #modalContent {
+    width: 95%;
+    max-width: 1100px;
+    max-height: 90vh;
+    border-radius: 24px; /* PC：四隅をすべて丸く */
+    padding: 40px;
+    transform: translateY(20px); /* PC：少し下からふわっと出す */
+    opacity: 0;
+    overflow-y: visible;
+  }
+
+  #modal.show #modalContent {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+  /* PCでは写真を大きく表示 */
+ .image-slider img {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  /* スマホの横並び時に大きすぎないよう高さを指定（重要） */
+  height: 100% !important; 
+  object-fit: contain;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+/* スクロールバー非表示 */
+::-webkit-scrollbar { display: none; }
+
+/* 検索窓のiOSデフォルトスタイル解除 */
+input[type="search"] {
+  -webkit-appearance: none;
+}
+
+
+
+
+/* --- インストールガイド & ダイアログの追加設定 --- */
+
+/* 背景を暗くするレイヤー（既存のモーダルと似た質感に） */
+#guide-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  backdrop-filter: blur(4px); /* 背景を少しぼかして高級感を出す */
+}
+
+/* iPhone用ガイドパネル：画面下から浮かび上がるデザイン */
+/* --- 修正版：iPhone用ガイドパネル --- */
+#ios-guide {
+  display: none;
+  position: fixed;
+  /* 位置設定 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 中央寄せ */
+  
+  width: 90%;
+  max-width: 400px;
+  z-index: 10001;
+  background: none; 
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+
+/* アニメーション（ふわっと表示） */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+#ios-guide.show {
+  display: block;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* インストールボタンのコンテナ（既存のリストやフッターと間隔を空ける） */
+#install-area {
+  padding: 0 24px 24px 24px;
+}
+
+#install-area {
+  /* ヘッダーの中に入れるので sticky top は不要になります（親のheaderがstickyなので） */
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+/* モーダルのz-indexが1000なので、ガイドはそれより上に設定 */
+#guide-overlay { z-index: 10000; }
+#ios-guide { z-index: 10001; }
+
+
+
+
+/* --- 追加：画像スライダー (showModal用) --- */
+.image-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
+  padding: 10px 0;
+  -webkit-overflow-scrolling: touch; /* iOSでのスクロールを滑らかに */
+}
+
+.image-slider img {
+  flex: 0 0 85%; /* 1枚を大きく見せつつ、次の画像があることを示す */
+  scroll-snap-align: center;
+  height: 240px; /* 必要に応じて調整 */
+  object-fit: contain;
+  background: #f1f5f9;
+  border-radius: 16px;
+}
+
+/* スクロールバーを隠してスッキリさせる */
+.image-slider::-webkit-scrollbar {
+  display: none;
+}
+/* --- 画像スライダーの強化 --- */
+.slider-container {
+  position: relative;
+  width: 100%;
+}
+
+.image-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
+  padding: 10px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox用 */
+}
+
+.image-slider::-webkit-scrollbar { display: none; }
+
+.image-slider img {
+  flex: 0 0 100%; /* 1枚を全幅に（矢印があるため100%がおすすめ） */
+  scroll-snap-align: center;
+  height: 280px;
+  object-fit: contain;
+  background: #f8fafc;
+  border-radius: 20px;
+}
+
+/* 矢印ボタン */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 10;
+  border: none;
+  cursor: pointer;
+  color: #1e293b;
+}
+
+.slider-btn:active { scale: 0.9; }
+.btn-prev { left: 8px; }
+.btn-next { right: 8px; }
+
+/* 枚数を示すドット */
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* 垂直方向の中央揃え */
+  gap: 6px;
+  margin-top: 12px;
+  min-height: 10px;    /* 領域を確保 */
+}
+
+.dot {
+  width: 8px;           /* 少し大きくして見やすく */
+  height: 8px;
+  background-color: #cbd5e1; /* 未選択：薄いグレー */
+  border-radius: 999px; /* 常に丸く */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 動きを滑らかに */
+  flex-shrink: 0;
+}
+
+/* JSで active クラスがついた時のスタイル */
+.dot.active {
+  background-color: #3b82f6 !important; /* 選択中：鮮やかな青 */
+  width: 20px !important;               /* 横長にする */
+}
+
+
+
+/* --- スマホ向け：ECアプリ風 横長機材カード --- */
+.equipment-card {
+  display: flex;
+  flex-direction: row;
+  background: white;
+  border-radius: 20px; /* 角丸を少し大きくして柔らかい印象に */
+  overflow: hidden;
+  min-height: 120px;
+  border: none; /* 枠線を消して影で浮き立たせる */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* ほんのり影をつける */
+  margin-bottom: 16px; /* カード間の余白 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  position: relative; /* 矢印アイコンの配置基準にするため追加 */
+}
+
+.equipment-card:active {
+  transform: scale(0.97);
+  background-color: #f8fafc;
+}
+
+/* 画像エリア（左側） */
+.card-img-box {
+  width: 130px; /* 少し幅を広げて正方形に近づける */
+  background-color: #f8fafc;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 画像を枠いっぱいに埋める */
+}
+
+/* テキストエリア（右側） */
+.card-content {
+  flex: 1;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0; /* スマホで文字がはみ出さないようにする魔法のコード */
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- PC・タブレット向けの調整（幅768px以上） --- */
+@media (min-width: 768px) {
+  .equipment-card {
+    flex-direction: column; /* PCでは縦型カードに変更 */
+    height: 100%; /* 高さをコンテンツに合わせる */
+    min-height: 280px;
+  }
+
+  .card-img-box {
+    width: 100%;
+    height: 180px; /* PCでの画像エリアの高さ */
+    border-right: none;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .card-content {
+    padding: 16px;
+    flex-grow: 1;
+  }
+}
+
+
+/* 拡大用オーバーレイ内の画像設定 */
+#zoomed-image {
+  /* scaleアニメーションとピンチ操作を両立させる */
+  transition: transform 0.1s ease-out;
+  cursor: zoom-in;
+  
+  /* touch-action を pinch-zoom に設定してブラウザにズームを任せる */
+  touch-action: pinch-zoom; 
+  
+  /* 拡大中に画像が勝手に動かないように制御 */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 拡大中の状態 */
+#zoomed-image.zoomed {
+  /* 拡大中は自由に位置を動かせるようにしたい場合は、overflowを設定した親要素が必要ですが、
+     まずはこの設定で「中央に大きく」表示されます */
+}

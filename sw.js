@@ -1,3 +1,10 @@
+// sw.js
 self.addEventListener('fetch', function(event) {
-  // 最小限のパススルー設定（PWA要件を満たすため）
+  // ネットワークからデータを取得する最小限の処理
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      // オフライン時のエラー回避用（空のレスポンスを返すなど）
+      return new Response('Offline');
+    })
+  );
 });
